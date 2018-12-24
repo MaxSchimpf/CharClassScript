@@ -1,0 +1,189 @@
+\usepackage{chngcntr}
+\counterwithout{equation}{chapter}
+\@addtoreset{equation}{section}
+\usepackage{amsthm}
+\def\@ynthm#1[#2]#3{%
+	\@xp\gdef\csname thmcaptionof#1\endcsname{#3}%
+	\@xp\xdef\csname thmstyleof#1\endcsname{\the\thm@style}%
+	\ifx\relax#2\relax
+	\def\@tempa{\@oparg{\@xthm{#1}{#3}}[]}%
+	\else
+	\@ifundefined{c@#2}{%
+		\def\@tempa{\@nocounterr{#2}}%
+	}{%
+		\@xp\xdef\csname the#1\endcsname{\@xp\@nx\csname the#2\endcsname}%
+		\toks@{#3}%
+		\@xp\xdef\csname#1\endcsname{%
+			\@nx\@thm{%
+				\let\@nx\thm@swap
+				\if S\thm@swap\@nx\@firstoftwo\else\@nx\@gobble\fi
+				\@xp\@nx\csname th@\the\thm@style\endcsname}%
+			{#2}{\the\toks@}}%
+		\let\@tempa\relax
+	}%
+	\fi
+	\@tempa
+}
+
+\usepackage{xstring}
+\usepackage{xparse}
+\usepackage{environ}
+
+\setlist[description]{font={\bfseries\rmfamily}}
+\usepackage[colorlinks=true,linkcolor=blue,unicode]{hyperref}                          
+
+
+
+\def \curthm{Blub}%sadly, this is the easiest way ...
+\def\varthmmodifier{a}
+
+\newtheoremstyle{cthm}
+{\topsep}
+{\topsep}
+{\itshape}
+{}
+{\bfseries}
+{.}
+{ }
+{\thmname{#1}\thmnumber{ \IfBeginWith{#2}{\thesection.}{\StrBehind{#2}{\thesection.}}{#2}}\thmnote{ \textmd{(#3)}}\xdef\curthm{#2}}
+
+\newtheoremstyle{cvarcthm}
+{\topsep}
+{\topsep}
+{\itshape}
+{}
+{\bfseries}
+{.}
+{ }
+{\edef\curthmnumber{\csname the\thmenv\endcsname}\thmname{\csname thmcaptionof\thmenv\endcsname}\thmnumber{ \IfBeginWith{\curthmnumber}{\thesection.}{\StrBehind{\curthmnumber\varthmmodifier}{\thesection.}}{\curthmnumber\varthmmodifier}}\thmnote{ \textmd{(#3)}}\xdef\curthm{\curthmnumber\varthmmodifier}}%für Varianten von Theoremen
+
+\newtheoremstyle{cdef}
+{\topsep}
+{\topsep}
+{}
+{}
+{\bfseries}
+{.}
+{ }
+{\thmname{#1}\thmnumber{ \IfBeginWith{#2}{\thesection.}{\StrBehind{#2}{\thesection.}}{#2}}\thmnote{ \textmd{(#3)}}\xdef\curthm{#2}}
+
+\newtheoremstyle{cvarcdef}
+{\topsep}
+{\topsep}
+{}
+{}
+{\bfseries}
+{.}
+{ }
+{\edef\curthmnumber{\csname the\thmenv\endcsname}\thmname{\csname thmcaptionof\thmenv\endcsname}\thmnumber{ \IfBeginWith{\curthmnumber}{\thesection.}{\StrBehind{\curthmnumber\varthmmodifier}{\thesection.}}{\curthmnumber\varthmmodifier}}\thmnote{ \textmd{(#3)}}\xdef\curthm{\curthmnumber\varthmmodifier}}%für Varianten von Theoremen
+\begingroup
+\makeatletter
+\@for\theoremstyle:=definition,remark,plain,cthm,cdef,cvarcthm,cvarcdef\do{%
+	\expandafter\g@addto@macro\csname th@\theoremstyle\endcsname{%
+		\addtolength\thm@preskip\parskip
+	}%
+}
+\endgroup
+\theoremstyle{cthm}
+\newtheorem{thm}{Theorem}[]
+\newtheorem*{thm*}{Theorem}
+\newtheorem{lem}{Lemma}[section]
+\renewcommand{\thelem}{\arabic{lem}}
+\newtheorem*{lem*}{Lemma}
+\newtheorem{sat}{Satz}[section]
+\renewcommand{\thesat}{\arabic{sat}}
+\newtheorem{cor}{Corollary}[section]
+\renewcommand{\thecor}{\arabic{cor}}
+\newtheorem*{cor*}{Corollary}
+\newtheorem{prop}{Proposition}[section]
+\renewcommand{\theprop}{\arabic{prop}}
+\newtheorem*{prop*}{Proposition}
+\newtheorem{fact}{Fact}[section]
+\renewcommand{\thefact}{\arabic{fact}}
+\newtheorem*{fact*}{Fact}
+
+\theoremstyle{cdef}
+\newtheorem{defi}{Definition}[section]
+\renewcommand{\thedefi}{\arabic{defi}}
+\newtheorem*{defi*}{Definition}
+\newtheorem{exc}{Exercise}[section]
+\renewcommand{\theexc}{\arabic{exc}}
+\newtheorem*{exc*}{Exercise}
+\newtheorem{example}{Example}[section]
+\renewcommand{\theexample}{\arabic{example}}
+\newtheorem*{example*}{Example}
+\newtheorem{rem}{Remark}[section]
+\renewcommand{\therem}{\arabic{rem}}
+\newtheorem*{rem*}{Remark}
+\newtheorem{con}{Convention}[section]
+\renewcommand{\thecon}{\arabic{con}}
+\newtheorem*{con*}{Convention}
+\newtheorem{claim}{Claim}[section]
+\renewcommand{\theclaim}{\arabic{claim}}
+\newtheorem*{claim*}{Claim}
+
+\theoremstyle{cvarcthm}
+\newtheorem{varcthmcontainer}{May differ}
+\renewcommand{\thevarcthmcontainer}{\csname the\thmenv\endcsname a}
+
+\theoremstyle{cvarcdef}
+\newtheorem{varcdefcontainer}{May differ}
+\renewcommand{\thevarcdefcontainer}{\csname the\thmenv\endcsname\varthmmodifier}
+
+\NewDocumentEnvironment{varthm}{O{a} m}{\xdef\varthmmodifier{#1}\edef\ytflatex{var\csname thmstyleof#2\endcsname container}\gdef\thmenv{#2}\@xp\def\csname the\ytflatex\endcsname{\csname the\thmenv\endcsname\varthmmodifier}\begin{\ytflatex}}{\end{\ytflatex}}
+
+%\renewenvironment{proof}[1][\proofname]
+%{\pushQED{\qed}\topsep0pt \partopsep0pt\trivlist\item[\hskip\labelsep\itshape #1.] }{\popQED\endtrivlist\addvspace{6pt plus 6pt}}
+
+
+%\renewcommand{\qedsymbol}{\textit{q.e.d.}}
+
+\def\labelWithSpecificText#1#2{\@bsphack
+	\protected@write\@auxout{}%
+	{\string\newlabel{#1}{{#2}{\thepage}{#2}{FerdisTeXHack}{}}}%
+	\@esphack}
+
+\newcommand{\lbl}[1]{
+	\label{#1}
+	\labelWithSpecificText{lblsubsec#1}{\thesection}
+}
+
+%\newcommand{\reff}[1]{%
+%	\edef\temp{\getrefnumber{#1}}%
+%	\StrBehind{\temp}{\thesubsection.}[\tempcropped]%
+%	\IfBeginWith{\temp}{\thesubsection}{\hyperref[#1]{\tempcropped}}{\hyperref[#1]{\temp}}%
+%}
+
+\newcounter{IsThisATheorem}
+
+\newcommand{\reff}[1]{%
+	\setcounter{IsThisATheorem}{0}%
+	\IfBeginWith{#1}{thm:}{\setcounter{IsThisATheorem}{1}}{}%
+	\IfBeginWith{#1}{sec:}{\setcounter{IsThisATheorem}{1}}{}%
+	\IfBeginWith{#1}{subsec:}{\setcounter{IsThisATheorem}{1}}{}%
+	\ifnum\value{IsThisATheorem}=1%
+	\hyperref[#1]{\getrefnumber{#1}}%ugly workaround for some \ref bug
+	\else%
+	\edef\temp{\getrefnumber{lblsubsec#1}}%
+	\IfBeginWith{\temp}{\thesection}{\hyperref[#1]{\getrefnumber{#1}}}{\hyperref[#1]{\temp.\getrefnumber{#1}}}%
+	\fi
+}
+
+
+\newcommand{\eqreff}[1]{%
+	\edef\temp{\getrefnumber{lblsubsec#1}}%
+	\IfBeginWith{\temp}{\thesection}{\hyperref[#1]{\upshape(\getrefnumber{#1})}}{\hyperref[#1]{\upshape(\temp .\getrefnumber{#1})}}%	
+}
+
+\newcommand{\Appendix}{\appendix%hacky workaround for some
+	\newcounter{thmsSoFar}%SERIOUSLY ANNOYING
+	\setcounter{thmsSoFar}{\thethm}%\ref bug
+	\def\thethm{\symbol{\the\numexpr64+\value{thm}-\value{thmsSoFar}\relax}}
+}
+
+\newcommand{\stackstag}[1]{\href{https://stacks.math.columbia.edu/tag/#1}{Tag~#1}}
+
+\newenvironment{alphanumerate}{\begin{enumerate}[label={\itememph{\alph*}},ref=\curthm]}{\end{enumerate}}       
+\newenvironment{rmnumerate}{\begin{enumerate}[label={\upshape(\roman*)},ref=\curthm]}{\end{enumerate}}   
+\renewenvironment{itemize}{\begin{enumerate}[label={$\bullet$},ref=\curthm]}{\end{enumerate}}
+\newenvironment{ordnumerate}{\begin{enumerate}[label={\arabic*.},ref=\curthm]}{\end{enumerate}} 
